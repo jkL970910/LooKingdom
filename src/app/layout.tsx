@@ -8,6 +8,7 @@ import "./coupon-flow.css";
 export const metadata: Metadata = {
   title: "Loo国生活 · 两个人的小小王国",
   description: "记录小日常，收藏大偏爱。属于蓝Loo和红Loo的温馨小窝。",
+  icons: { apple: "/icons/loo-192.png" },
   manifest: "/manifest.webmanifest",
   appleWebApp: { capable: true, statusBarStyle: "default", title: "Loo国生活" },
   robots: { index: false, follow: false },

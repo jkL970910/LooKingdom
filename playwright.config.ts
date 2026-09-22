@@ -31,6 +31,8 @@ export default defineConfig({
       SESSION_SECRET: "loo-isolated-e2e-session-secret-not-for-production",
       APP_ORIGIN: "",
       VERCEL: "",
+      VAPID_PUBLIC_KEY: "",
+      VAPID_PRIVATE_KEY: "",
       LOO_TIMEZONE: "America/Toronto",
     },
   },

@@ -3,6 +3,9 @@ import { commandSchema, applyCommand, DomainError } from "@/lib/domain";
 import { getPhoto, readState, updateState } from "@/lib/storage";
 import { json, failure } from "@/lib/http";
 import { settleCouponUses } from "@/lib/coupon-flow";
+import { after } from "next/server";
+import { interactionNotice, sendPartnerPush, type Notice } from "@/lib/push";
+export const maxDuration = 30;
 export const runtime = "nodejs";
 export async function GET() {
   try {
@@ -40,9 +43,22 @@ export async function POST(request: Request) {
               : null;
     if (photoId && !(await getPhoto(photoId)))
       throw new DomainError("照片上传尚未完成，请重新选择");
-    const state = await updateState((state) =>
-      applyCommand(state, command, actor),
-    );
+    let notice: Notice | null = null;
+    const state = await updateState((previous) => {
+      const next = applyCommand(previous, command, actor);
+      notice = interactionNotice(previous, command, actor);
+      return next;
+    });
+    if (notice) {
+      const notification: Notice = notice;
+      after(async () => {
+        try {
+          await sendPartnerPush(actor, notification);
+        } catch {
+          console.warn("Push service temporarily unavailable");
+        }
+      });
+    }
     return json({ ...state, serverNow: new Date().toISOString() });
   } catch (e) {
     return failure(e);

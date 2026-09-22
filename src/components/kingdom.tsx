@@ -27,6 +27,7 @@ import { Journal } from "./journal";
 import { Wallet } from "./wallet";
 import { Recipes, Trips } from "./lifestyle-pages";
 import { Panels, Login } from "./panels";
+import { disableDevicePush } from "./push-settings";
 import { useTimeZone } from "./time-zone";
 import { useStatusLabel } from "@/lib/coupon-flow";
 
@@ -228,6 +229,7 @@ export default function Kingdom() {
   };
   const logout = async () => {
     try {
+      await disableDevicePush();
       await api("/api/session", { method: "DELETE" });
       setState(null);
       setRole(null);

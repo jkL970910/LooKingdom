@@ -58,3 +58,17 @@ API 禁止共享缓存；客户端暂时失联时不把写操作伪装成保存�
 搜索只在用户点击时发起，服务端带识别应用的 User-Agent、24 小时缓存、10 秒超时；本地串行化，PostgreSQL 事务 advisory lock 在多实例间串行化并限速。地理编码使用单独缓存表，不改变情侣记录版本。正常展示地图署名，不预取离线瓦片，使用允许发送来源的 Referrer-Policy。依据：[OSM 瓦片政策](https://operations.osmfoundation.org/policies/tiles/)、[Nominatim 政策](https://operations.osmfoundation.org/policies/nominatim/)。
 
 验收新增功能：分别用两台手机加入想吃清单、调整顺序并标记做过；从未来旅行大事件跳转足迹地图，编辑路线后检查大事件同步；用过去日期标记完成，确认回顾统计变化。地图网络失败时仍能编辑文字和手动坐标。旧数据首次读取会补上菜谱/旅行字段并关联旧旅行大事件，不会编造地图坐标；下一次保存会持久化迁移后的结构。
+
+## 手机通知
+
+用户于 2026-09-22 明确允许保存主动订阅的设备信息，并通过 Apple / Google / Mozilla / Microsoft Web Push 服务发送互动类型、活动状态和心情。通知不包含自由输入留言、日记或照片。
+
+生产环境配置 VAPID_PUBLIC_KEY / VAPID_PRIVATE_KEY，私钥仅保留在服务端；公钥由登录后的 /api/push 返回。请勿随意轮换，否则旧设备需要重新订阅。首次访问订阅接口自动创建独立 loo_push_subscriptions 表。
+
+入口：右上角头像 → 我们的小窝 → 让小心意来敲门 → 开启手机小心意。iPhone / iPad 需 iOS 16.4+，先用 Safari 添加到主屏幕，再从该入口打开应用并授权。每台设备单独开启和关闭；退出登录前会删除本设备订阅并取消浏览器订阅，删除失败时保留登录方便重试。
+
+已成功提交的摸摸头、抱抱、戳一戳以及活动/心情变化会提醒对方的订阅设备；同一互动请求 ID 重试不重复发送，单改私密留言不推送。使用 Next after 在提交后发送；推送失败不撤销业务保存。404/410 的过期订阅自动清理。投递为尽力而为，受网络、手机权限与专注模式影响，不保证实时送达；当前不设置定时重试。
+
+Service Worker 只处理通知展示与点击，不缓存私人页面或 API。点击通知回到小窝，已登录设备显示最新状态；会话过期时先登录。
+
+参考：[Apple Web Push](https://webkit.org/blog/13878/web-push-for-web-apps-on-ios-and-ipados/)、[web-push](https://www.npmjs.com/package/web-push)。

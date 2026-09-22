@@ -3,6 +3,7 @@ import { compressPhoto } from "@/lib/photo";
 import { PlaceEditor } from "./place-editor";
 import { LifestylePanels } from "./lifestyle-panels";
 import { CouponFlowPanels, RequestCoupon } from "./coupon-flow";
+import { PushSettings } from "./push-settings";
 import { TimeZoneSettings } from "./time-zone";
 import type { UseKind } from "@/lib/coupon-flow";
 import type { Place } from "@/lib/lifestyle";
@@ -787,6 +788,7 @@ function Settings({
         <small>纪念日时区：{state.timeZone}</small>
       </div>
       <TimeZoneSettings />
+      <PushSettings />
       <button
         className="settings-row"
         onClick={() => setPanel({ kind: "inbox" })}

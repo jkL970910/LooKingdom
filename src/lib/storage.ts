@@ -25,7 +25,7 @@ export function localMode() {
 const dataDir = () =>
   path.join(process.cwd(), ".local", process.env.LOO_DATA_DIR || "home");
 const statePath = () => path.join(dataDir(), "kingdom.json");
-function pool() {
+export function pool() {
   if (!process.env.DATABASE_URL)
     throw new Error("DATABASE_URL is required outside local development");
   return (globals.looPool ??= new Pool({
@@ -35,7 +35,7 @@ function pool() {
     connectionTimeoutMillis: 10000,
   }));
 }
-async function ready() {
+export async function ready() {
   if (!globals.looReady)
     globals.looReady = (async () => {
       await pool()
@@ -43,6 +43,7 @@ async function ready() {
       CREATE TABLE IF NOT EXISTS loo_photos (id uuid PRIMARY KEY, owner text NOT NULL, mime text NOT NULL, data bytea NOT NULL, created_at timestamptz NOT NULL DEFAULT now());
       CREATE TABLE IF NOT EXISTS loo_login_limits (id text PRIMARY KEY, attempts integer NOT NULL, expires timestamptz NOT NULL);
       CREATE TABLE IF NOT EXISTS loo_geocode_cache (id text PRIMARY KEY, data jsonb NOT NULL, expires timestamptz NOT NULL);
+      CREATE TABLE IF NOT EXISTS loo_push_subscriptions (id text PRIMARY KEY, owner text NOT NULL, subscription jsonb NOT NULL, updated_at timestamptz NOT NULL DEFAULT now());
       CREATE TABLE IF NOT EXISTS loo_service_clock (id text PRIMARY KEY, last_request timestamptz NOT NULL);`);
       await pool().query(
         "INSERT INTO loo_kingdom (id, state) VALUES ($1, $2::jsonb) ON CONFLICT DO NOTHING",

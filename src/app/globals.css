@@ -2575,3 +2575,12 @@ dialog {
   color: #c17b53;
   margin-left: 4px;
 }
+
+.push-settings b {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.push-settings .button {
+  margin-top: 12px;
+}
