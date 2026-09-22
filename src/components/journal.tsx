@@ -4,6 +4,7 @@ import { ChevronRight, Plus, CalendarHeart, Pin } from "lucide-react";
 import { daysUntil, moodEmoji, nextOccurrence, today } from "@/lib/domain";
 import { useKingdom } from "./context";
 import { Sprite } from "./art";
+import { Countdown } from "./home";
 import { prioritizedPlans } from "@/lib/event-priority";
 export function Journal() {
   const { state, setPanel } = useKingdom();
@@ -20,11 +21,7 @@ export function Journal() {
       (a, b) =>
         b.date.localeCompare(a.date) || b.createdAt.localeCompare(a.createdAt),
     );
-  const shown = futureTab
-    ? upcoming
-    : pinned
-      ? [pinned, ...history.filter((e) => e.id !== pinned.id)]
-      : history;
+  const shown = futureTab ? upcoming : history;
   return (
     <>
       <div className="journal-heading">
@@ -47,6 +44,12 @@ export function Journal() {
           未来计划
         </button>
       </div>
+      {pinned && (
+        <Countdown
+          event={pinned}
+          onClick={() => setPanel({ kind: "event-detail", event: pinned })}
+        />
+      )}
       <div className="event-list">
         {shown.map((event) => (
           <button
