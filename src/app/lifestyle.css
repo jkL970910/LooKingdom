@@ -1,0 +1,704 @@
+.bottom-nav {
+  grid-template-columns: repeat(5, 1fr);
+}
+.bottom-nav button {
+  min-width: 0;
+}
+.bottom-nav .nav-recipes {
+  color: #b77936;
+}
+.bottom-nav .nav-trips {
+  color: #43948c;
+}
+.lifestyle-page {
+  display: grid;
+  gap: 18px;
+}
+.life-hero {
+  min-height: 173px;
+  border: 1px solid #eadbc4;
+  border-radius: 24px;
+  padding: 22px 16px;
+  position: relative;
+  overflow: hidden;
+  background: #fff0d6;
+}
+.life-hero > div:first-child {
+  position: relative;
+  z-index: 1;
+  max-width: 76%;
+}
+.life-hero .eyebrow {
+  font-size: 9px;
+  letter-spacing: 1.4px;
+  color: #a17b4d;
+}
+.life-hero h2 {
+  font-family: var(--font-title);
+  font-size: 27px;
+  margin: 12px 0 8px;
+}
+.life-hero p {
+  font-size: 12px;
+}
+.life-hero small {
+  display: block;
+  font-size: 10px;
+  color: #947c64;
+  margin-top: 16px;
+}
+.life-hero > .sprite {
+  position: absolute;
+  width: 155px;
+  height: 130px;
+  right: -27px;
+  bottom: -18px;
+  opacity: 0.82;
+  mask-image: radial-gradient(ellipse at 70% 70%, black 50%, transparent 90%);
+}
+.travel-hero {
+  background: #eaf2e7;
+  border-color: #d7e3d3;
+}
+.travel-hero > .sprite {
+  width: 142px;
+  right: -20px;
+}
+.life-tabs {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px;
+  background: #f1e7da;
+  padding: 5px;
+  border-radius: 16px;
+}
+.life-tabs button {
+  min-height: 45px;
+  padding: 5px 2px;
+  font-size: 12px;
+  border-radius: 12px;
+}
+.life-tabs button[aria-selected="true"] {
+  background: var(--paper);
+  box-shadow: var(--shadow);
+  color: #b76254;
+  font-weight: 600;
+}
+.life-tabs small {
+  font-size: 9px;
+  margin-left: 4px;
+  color: var(--muted);
+}
+.two-tabs {
+  grid-template-columns: 1fr 1fr;
+}
+.section-caption {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: space-between;
+}
+.section-caption h2 {
+  font-family: var(--font-title);
+  font-size: 21px;
+}
+.section-caption > span {
+  font-size: 10px;
+  color: var(--muted);
+}
+.section-caption select {
+  max-width: 112px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 8px;
+}
+.meal-card,
+.history-card,
+.trip-card {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 21px;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+.meal-card {
+  padding: 14px;
+}
+.meal-card-top {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+.queue-number {
+  color: #ccaa7b;
+  font-family: var(--font-title);
+  font-size: 22px;
+}
+.recipe-summary {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0;
+  flex: 1;
+  text-align: left;
+  min-width: 0;
+}
+.recipe-summary > span:last-child {
+  flex: 1;
+  min-width: 0;
+}
+.recipe-summary b,
+.saved-recipe b,
+.history-card h3 {
+  display: block;
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+.recipe-summary small,
+.saved-recipe small {
+  display: block;
+  font-size: 10px;
+  color: var(--muted);
+  margin-top: 5px;
+}
+.food-art,
+.food-photo {
+  width: 55px;
+  height: 55px;
+  flex: 0 0 55px;
+  border-radius: 15px;
+  background: #f9ead5;
+  object-fit: cover;
+}
+.food-art {
+  display: grid;
+  place-items: center;
+  font-size: 31px;
+}
+.meal-actions {
+  border-top: 1px dashed var(--line);
+  margin-top: 12px;
+  padding-top: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.mini-action {
+  display: inline-grid;
+  width: 36px;
+  height: 44px;
+  place-items: center;
+  flex-shrink: 0;
+}
+.pill-action {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  font-size: 12px;
+  background: #f9e1d8;
+  color: #a65e4e;
+  border-radius: 16px;
+  padding: 10px 13px;
+  min-height: 44px;
+}
+.search-row {
+  display: flex;
+  gap: 8px;
+}
+.search-row input {
+  width: 100%;
+  min-width: 0;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: var(--paper);
+  padding: 11px;
+  font-size: 13px;
+}
+.search-row select {
+  min-width: 95px;
+  max-width: 120px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: var(--paper);
+  padding: 8px;
+  font-size: 11px;
+}
+.search-row .button {
+  width: auto;
+  white-space: nowrap;
+  margin: 0;
+}
+.simple-check {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  font-size: 12px;
+  min-height: 44px;
+}
+.simple-check input {
+  accent-color: var(--coral);
+  width: 17px;
+  height: 17px;
+}
+.recipe-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.saved-recipe {
+  position: relative;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  overflow: hidden;
+}
+.saved-recipe-main {
+  width: 100%;
+  text-align: left;
+  padding: 12px;
+}
+.saved-recipe .food-art,
+.saved-recipe .food-photo {
+  width: 100%;
+  height: 110px;
+  margin-bottom: 12px;
+  font-size: 55px;
+}
+.favorite-button {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: #d87378;
+  background: #fffaf0ed;
+}
+.life-empty {
+  text-align: center;
+  padding: 14px 18px 24px;
+}
+.life-empty > .sprite {
+  width: 150px;
+  height: 125px;
+  margin: 0 auto;
+}
+.life-empty h3 {
+  font-family: var(--font-title);
+  font-size: 22px;
+  margin-bottom: 9px;
+}
+.life-empty p {
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.9;
+}
+.history-card {
+  display: flex;
+  gap: 14px;
+  padding: 17px;
+}
+.history-card > div {
+  min-width: 0;
+}
+.history-card time {
+  font-size: 10px;
+  color: var(--muted);
+}
+.history-card h3 {
+  margin: 5px 0;
+}
+.history-card p {
+  font-size: 12px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  line-height: 1.8;
+}
+.stars {
+  color: #d8a34b;
+  letter-spacing: 2px;
+}
+.text-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 44px;
+  font-size: 12px;
+  color: #aa6d54;
+  padding: 4px 0;
+  text-align: left;
+}
+.micro-copy {
+  font-size: 10px;
+  color: var(--muted);
+  line-height: 1.8;
+  margin: 0;
+}
+.travel-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  padding: 18px 4px;
+  background: var(--paper);
+}
+.travel-stats > div {
+  display: grid;
+  gap: 5px;
+  text-align: center;
+  border-right: 1px dashed var(--line);
+}
+.travel-stats > div:last-child {
+  border: 0;
+}
+.travel-stats b {
+  color: #618c7a;
+  font-family: var(--font-title);
+  font-size: 28px;
+}
+.travel-stats span {
+  color: var(--muted);
+  font-size: 10px;
+}
+.map-wrap {
+  position: relative;
+  isolation: isolate;
+  border: 1px solid #d7dfd3;
+  border-radius: 20px;
+  overflow: hidden;
+  background: #edf0e4;
+}
+.trip-map {
+  height: 290px;
+  width: 100%;
+  z-index: 0;
+}
+.map-message {
+  position: absolute;
+  bottom: 24px;
+  left: 12px;
+  right: 12px;
+  z-index: 500;
+  background: #fffaf0ed;
+  padding: 8px;
+  border-radius: 10px;
+  font-size: 11px;
+  pointer-events: none;
+}
+.loo-map-marker span {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  color: white;
+  font-weight: 700;
+  border: 3px solid white;
+  border-radius: 50% 50% 50% 5px;
+  box-shadow: 0 2px 5px #4c614944;
+}
+.leaflet-container {
+  font-family: var(--font-body);
+}
+.leaflet-container .leaflet-control-attribution {
+  font-size: 9px;
+}
+.map-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  scroll-margin-top: 20px;
+}
+.map-heading > span {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+  font-size: 12px;
+}
+.map-heading button {
+  font-size: 11px;
+  text-decoration: underline;
+  min-height: 44px;
+}
+.selected-trip {
+  border: 1px solid #cbdacb;
+  border-radius: 16px;
+  padding: 14px;
+  background: #edf3e9;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  text-align: left;
+}
+.selected-trip small {
+  display: block;
+  color: var(--muted);
+  font-size: 11px;
+  margin-top: 5px;
+}
+.trip-card.active {
+  border-color: #8bad96;
+}
+.trip-card-main {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-align: left;
+  padding: 15px;
+  width: 100%;
+}
+.trip-card-main > .sprite,
+.trip-card-main > img {
+  flex: 0 0 75px;
+  width: 75px;
+  height: 75px;
+  border-radius: 14px;
+  object-fit: cover;
+}
+.trip-card-main > span {
+  flex: 1;
+  min-width: 0;
+}
+.trip-card-main small {
+  font-size: 10px;
+  color: var(--muted);
+}
+.trip-card-main b {
+  display: block;
+  margin: 7px 0;
+  overflow-wrap: anywhere;
+}
+.trip-card-main p {
+  font-size: 11px;
+  line-height: 1.8;
+  overflow-wrap: anywhere;
+}
+.trip-card-footer {
+  border-top: 1px dashed var(--line);
+  padding: 2px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.trip-card-footer small {
+  font-size: 10px;
+  color: var(--muted);
+}
+.form-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  min-width: 0;
+}
+.form-columns > * {
+  min-width: 0;
+}
+.form-columns input {
+  max-width: 100%;
+  min-width: 0;
+}
+.import-box {
+  padding: 14px;
+  border: 1px dashed #dec9a7;
+  border-radius: 19px;
+  background: #fff4de;
+  margin-bottom: 18px;
+}
+.import-box .field {
+  margin-top: 0;
+}
+.import-box .micro-copy {
+  margin-top: 10px;
+}
+.inline-note {
+  font-size: 12px;
+  line-height: 1.9;
+  background: #f4ecdd;
+  padding: 11px 13px;
+  border-radius: 12px;
+  margin: 12px 0;
+}
+.life-photo-upload {
+  position: relative;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: center;
+  min-height: 85px;
+  border: 1px dashed #cfbdaa;
+  border-radius: 15px;
+  color: var(--muted);
+  font-size: 12px;
+  overflow: hidden;
+}
+.life-photo-upload input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+  width: 100%;
+  height: 100%;
+}
+.life-photo-preview {
+  position: relative;
+}
+.life-photo-preview img {
+  width: 100%;
+  max-height: 220px;
+  object-fit: cover;
+  border-radius: 16px;
+}
+.life-photo-preview button {
+  position: absolute;
+  right: 8px;
+  top: 8px;
+  background: var(--paper);
+  border-radius: 50%;
+}
+.recipe-detail-art .food-art,
+.recipe-detail-art .food-photo {
+  width: 100%;
+  height: 185px;
+  font-size: 90px;
+  margin-bottom: 16px;
+}
+.recipe-instructions h3 {
+  font-family: var(--font-title);
+  font-size: 21px;
+  margin: 20px 0 10px;
+}
+.recipe-instructions p {
+  font-size: 13px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  line-height: 2;
+}
+.source-link {
+  text-decoration: none;
+  margin-top: 20px;
+}
+.danger-link {
+  color: #ac685b;
+  margin: 12px auto 0;
+  display: flex;
+  justify-content: center;
+}
+.cook-dish {
+  font-family: var(--font-title);
+  font-size: 25px;
+  text-align: center;
+  margin: 12px 0;
+}
+.place-editor {
+  padding: 16px 0;
+  border-top: 1px dashed var(--line);
+  border-bottom: 1px dashed var(--line);
+  margin: 20px 0;
+}
+.place-editor .search-row {
+  margin: 12px 0 7px;
+}
+.place-results {
+  list-style: none;
+  margin: 10px 0;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  overflow: hidden;
+}
+.place-results li + li {
+  border-top: 1px solid var(--line);
+}
+.place-results button {
+  text-align: left;
+  width: 100%;
+  padding: 12px;
+  background: var(--paper);
+}
+.place-results small {
+  display: block;
+  font-size: 10px;
+  color: var(--muted);
+  margin-top: 6px;
+  line-height: 1.8;
+}
+.stop-list,
+.itinerary {
+  list-style: none;
+  margin: 12px 0;
+  padding: 0;
+}
+.stop-list li,
+.itinerary li {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border-bottom: 1px dashed var(--line);
+  padding: 7px 0;
+}
+.stop-list li > div,
+.itinerary li > div {
+  flex: 1;
+  min-width: 0;
+}
+.stop-list b,
+.itinerary b {
+  display: block;
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+.stop-list small,
+.itinerary small {
+  display: block;
+  font-size: 9px;
+  color: var(--muted);
+}
+.stop-list .mini-action {
+  width: 28px;
+}
+.stop-number {
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #e2ecdf;
+  color: #5c856e;
+  font-size: 11px;
+}
+.manual-place .trip-map {
+  height: 220px;
+}
+.trip-cover {
+  width: 100%;
+  max-height: 230px;
+  object-fit: cover;
+  border-radius: 17px;
+  margin-bottom: 16px;
+}
+@media (max-width: 360px) {
+  .life-hero h2 {
+    font-size: 24px;
+  }
+  .section-caption h2 {
+    font-size: 19px;
+  }
+  .life-tabs button {
+    font-size: 11px;
+  }
+  .bottom-nav button span {
+    font-size: 10px;
+  }
+  .title-row h1 {
+    font-size: 29px;
+  }
+  .trip-card-main > .sprite,
+  .trip-card-main > img {
+    flex-basis: 55px;
+    width: 55px;
+    height: 65px;
+  }
+}

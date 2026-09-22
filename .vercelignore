@@ -1,0 +1,9 @@
+node_modules
+.local
+.env*
+design
+tests
+test-results
+playwright-report
+public/art/*.png
+scripts/optimize-art.mjs

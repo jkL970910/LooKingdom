@@ -1,0 +1,14 @@
+node_modules/
+.next/
+.env*
+!.env.example
+.vercel/
+.local/
+test-results/
+playwright-report/
+*.tsbuildinfo
+
+# Keep source artwork, private previews and local screenshots off the remote.
+design/
+public/art/*.png
+*.log
