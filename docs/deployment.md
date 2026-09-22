@@ -2,6 +2,12 @@
 
 本项目参考 `E:/Projects/Portfolio Manager/docs/execution/cloud-deployment-strategy.md` 的部署结构；未读取或复用其他项目的任何密钥、数据库或云端资源。
 
+## 当前项目
+
+正式地址：https://loo-kingdom.vercel.app
+
+GitHub：https://github.com/jkL970910/LooKingdom （main 推送触发 Vercel 部署）。Vercel 项目 loo-kingdom，Node.js 22，服务器位于 iad1。正式域名使用应用自己的双人口令登录，其他部署地址保留 Vercel 访问保护。生产环境配置与本地测试数据分离，部署令牌不注入应用环境。
+
 ## 所需配置
 
 复制 `.env.example` 为 `.env.local`，把真实值只保存在本地或 Vercel 环境变量中，勿粘贴到聊天、提交到 Git 或放进 `NEXT_PUBLIC_` 变量。
@@ -14,7 +20,7 @@
 | RED_ACCESS_CODE | 红 Loo 的独立登录口令，至少 6 个字符（按用户确认设置），与蓝方不同 |
 | APP_ORIGIN | 最终 HTTPS 网站 origin，例如 `https://loo-kingdom.example.com`，没有末尾斜杠；用于同源请求校验 |
 | LOO_TIMEZONE | 双方共享纪念日时区，默认 `America/Toronto`，也可在初次建库前设置 `Asia/Shanghai` |
-| VERCEL_TOKEN | 如由代理通过 CLI 部署，提供 Vercel 部署令牌；应用运行本身不需要 |
+| VERCEL_TOKEN | 如由代理通过 API / CLI 部署，提供 Vercel 部署令牌；应用运行本身不需要 |
 | VERCEL_ORG_ID / VERCEL_PROJECT_ID | 可选，部署到已有的指定 Vercel 团队与项目时提供 |
 
 时区会写入初始化的小窝记录；已有小窝不会因为环境变量变化而偷偷改变纪念日时区。
@@ -23,11 +29,11 @@
 
 1. 新建 Loo 国专用的 Neon PostgreSQL 数据库，取得连接串。不使用其他应用的业务数据库。
 2. 在 Vercel 导入此项目，框架选择 Next.js，构建命令 `npm run build`；Node.js 使用该 Next.js 版本支持的 22 LTS 或更新支持版本。
-3. 配置以上服务器环境变量。不要开启 `LOO_LOCAL_DEMO`；Vercel 环境始终禁止本地文件模式。
+3. 配置应用需要的服务器环境变量（不包括 VERCEL_TOKEN、VERCEL_ORG_ID、VERCEL_PROJECT_ID 等部署工具变量）。不要开启 `LOO_LOCAL_DEMO`；Vercel 环境始终禁止本地文件模式。
 4. 部署后设置准确的 `APP_ORIGIN`；若绑定新域名，随之更新并重新部署。预览域名若需独立验收，应使用隔离数据库和该预览地址的环境变量。
 5. 首次登录自动创建 `loo_kingdom`、`loo_photos`、`loo_login_limits`、`loo_geocode_cache` 和 `loo_service_clock` 表。没有示例个人日记或卡片。
 6. 两部手机分别使用蓝方/红方口令登录；更新状态，等待 8 秒内另一方同步；发送互动并查看收件箱。
-7. 创建带照片日记、未来倒计时和时长卡；验收图片权限、45 → 30 分钟扣减、刷新后的持久性以及另一方无法核销专属卡。
+7. 创建带照片日记、未来倒计时和时长卡；验收图片权限、45 → 30 分钟扣减、刷新后的持久性以及只能向对方发卡、持卡人申请、另一方接受。
 
 ## 实现与维护
 
@@ -45,7 +51,7 @@ API 禁止共享缓存；客户端暂时失联时不把写操作伪装成保存�
 
 ## 菜谱与旅行服务
 
-无需新增 AI 密钥。小红书仅读取允许公开访问的网页元数据，支持 `xhslink.com` 分享短链，逐跳校验地址，不执行网页脚本。受限笔记进入人工补充流程。生产环境应使用真实公开笔记验收识别结果及登录限制提示。
+无需新增 AI 密钥。小红书仅读取允许公开访问的网页元数据、JSON-LD 与序列化笔记正文，支持 `xhslink.com` 分享短链，逐跳校验地址，不执行网页脚本。受限笔记进入人工补充流程。生产环境应使用真实公开笔记验收识别结果及登录限制提示。
 
 默认地图为 OpenStreetMap 标准瓦片、地点搜索为 Nominatim。`GEOCODING_BASE_URL` 可切换兼容搜索服务，`NEXT_PUBLIC_MAP_TILE_URL` 可切换兼容 XYZ 瓦片地址；切换地图供应商时也需要在 `trip-map.tsx` 更新对应署名。瓦片地址为浏览器可见配置，不能放私密凭据。应用不读取设备 GPS。
 

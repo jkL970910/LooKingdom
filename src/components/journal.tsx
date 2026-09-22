@@ -1,17 +1,9 @@
 "use client";
 import { useState } from "react";
 import { ChevronRight, Plus, CalendarHeart, Pin } from "lucide-react";
-import {
-  daysUntil,
-  moodEmoji,
-  moods,
-  nextOccurrence,
-  today,
-  themeEmoji,
-} from "@/lib/domain";
+import { daysUntil, moodEmoji, nextOccurrence, today } from "@/lib/domain";
 import { useKingdom } from "./context";
 import { Sprite } from "./art";
-import { Countdown } from "./home";
 export function Journal() {
   const { state, setPanel } = useKingdom();
   const [futureTab, setFutureTab] = useState(false);
@@ -27,9 +19,6 @@ export function Journal() {
       (a, b) =>
         b.date.localeCompare(a.date) || b.createdAt.localeCompare(a.createdAt),
     );
-  const pinned =
-    upcoming.find((e) => e.id === state.pinnedEventId && e.countdown) ||
-    upcoming.find((e) => e.countdown);
   return (
     <>
       <div className="journal-heading">
@@ -52,76 +41,47 @@ export function Journal() {
           未来计划
         </button>
       </div>
-      {!futureTab && pinned && (
-        <Countdown
-          event={pinned}
-          onClick={() => setPanel({ kind: "event-detail", event: pinned })}
-        />
-      )}
       <div className="event-list">
-        {(futureTab ? upcoming : history).map((event, index) => (
+        {(futureTab ? upcoming : history).map((event) => (
           <button
-            className={`event-card ${index > 0 && !futureTab ? "event-small" : ""}`}
+            className="event-card event-small"
             key={event.id}
             onClick={() => setPanel({ kind: "event-detail", event })}
           >
-            {index > 0 && !futureTab ? (
-              <>
-                <Sprite
-                  sheet="events"
-                  index={event.theme}
-                  className="event-mini-art"
-                />
-                <div>
-                  <h3>{event.title}</h3>
-                  <p>{event.note.split("\n")[0] || "和你在一起的日子"}</p>
-                </div>
-                <time>{event.date.slice(5).replace("-", ".")}</time>
-                <ChevronRight size={16} />
-              </>
+            {event.photoId ? (
+              <img
+                className="event-mini-art"
+                src={`/api/photos/${event.photoId}`}
+                alt=""
+                loading="lazy"
+              />
             ) : (
-              <>
-                <div className="event-meta">
-                  <time>
-                    {event.date.slice(5).replace("-", ".")} ·{" "}
-                    {new Intl.DateTimeFormat("zh-CN", {
-                      weekday: "long",
-                      timeZone: "UTC",
-                    }).format(new Date(event.date + "T12:00:00Z"))}
-                  </time>
-                  <span className="mood-tag">
-                    {moodEmoji[event.mood]} {moods[event.mood]}
-                  </span>
-                </div>
-                <h3>
-                  {event.title}
-                  {state.pinnedEventId === event.id && <Pin size={15} />}
-                </h3>
-                <p className="event-excerpt">
-                  {event.note.split("\n")[0] ||
-                    `${themeEmoji[event.theme]} 我们又多了一份小小的回忆`}
-                </p>
-                {futureTab && (
-                  <span className="future-days">
-                    {daysUntil(event, current) === 0
-                      ? "就是今天！"
-                      : `还有 ${daysUntil(event, current)} 天`}
-                  </span>
-                )}
-                <div className="event-cover">
-                  {event.photoId ? (
-                    <img
-                      src={`/api/photos/${event.photoId}`}
-                      alt={event.title}
-                      loading="lazy"
-                    />
-                  ) : (
-                    <Sprite sheet="events" index={event.theme} />
-                  )}
-                  <span className="heart-sticker">♡</span>
-                </div>
-              </>
+              <Sprite
+                sheet="events"
+                index={event.theme}
+                className="event-mini-art"
+              />
             )}
+            <div>
+              <h3>
+                {event.title}{" "}
+                {state.pinnedEventId === event.id && <Pin size={12} />}
+              </h3>
+              <p>
+                {moodEmoji[event.mood]}{" "}
+                {event.note.split("\n")[0] || "和你在一起的日子"}
+              </p>
+            </div>
+            <span className="event-list-date">
+              <time>
+                {(futureTab
+                  ? nextOccurrence(event, current)
+                  : event.date
+                ).replaceAll("-", ".")}
+              </time>
+              {futureTab && <small>还有 {daysUntil(event, current)} 天</small>}
+            </span>
+            <ChevronRight size={16} />
           </button>
         ))}
       </div>

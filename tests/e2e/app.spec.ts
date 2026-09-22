@@ -161,7 +161,7 @@ test("two identities synchronize and coupon spending is atomic and idempotent", 
     "双端测试",
   );
   const id = crypto.randomUUID();
-  await blue.post("/api/state", {
+  await red.post("/api/state", {
     data: {
       type: "coupon.create",
       requestId: id,
@@ -204,7 +204,7 @@ test("two identities synchronize and coupon spending is atomic and idempotent", 
     state.redemptions.filter((r: { couponId: string }) => r.couponId === id),
   ).toHaveLength(1);
   const secondId = crypto.randomUUID();
-  await blue.post("/api/state", {
+  await red.post("/api/state", {
     data: {
       type: "coupon.create",
       requestId: secondId,

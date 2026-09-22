@@ -2,7 +2,16 @@ import { load } from "cheerio";
 import { isRecipeUrl } from "./lifestyle";
 import { DomainError } from "./errors";
 
+export type ImportFailure =
+  | "restricted"
+  | "not-found"
+  | "timeout"
+  | "network"
+  | "unsupported-redirect"
+  | "too-large"
+  | "no-content";
 export type RecipeDraft = {
+  failureReason?: ImportFailure;
   sourceUrl: string;
   title: string;
   cuisine: number;
@@ -93,6 +102,69 @@ const clean = (text: string) =>
     .replace(/\s+/g, " ")
     .replace(/\s*[-_|·]\s*小红书.*$/, "")
     .trim();
+// Read serialized page data only. Never evaluate JavaScript from a note.
+function readInitialNote(
+  scripts: string[],
+  sourceUrl: string,
+): { title: string; description: string } | null {
+  const noteId = new URL(sourceUrl).pathname.match(
+    /\/(?:explore|discovery\/item)\/([a-zA-Z0-9]+)/,
+  )?.[1];
+  for (const script of scripts) {
+    const match = /(?:window\.)?__INITIAL_STATE__\s*=\s*/.exec(script);
+    if (!match) continue;
+    const start = match.index + match[0].length;
+    if (script[start] !== "{") continue;
+    let depth = 0,
+      quoted = false,
+      escaped = false,
+      end = -1;
+    for (let i = start; i < script.length; i++) {
+      const c = script[i];
+      if (quoted) {
+        if (escaped) escaped = false;
+        else if (c === "\\") escaped = true;
+        else if (c === '"') quoted = false;
+      } else if (c === '"') quoted = true;
+      else if (c === "{") depth++;
+      else if (c === "}" && --depth === 0) {
+        end = i + 1;
+        break;
+      }
+    }
+    if (end < 0) continue;
+    try {
+      // XHS serializes absent properties as undefined; preserve quoted strings verbatim.
+      const json = script
+        .slice(start, end)
+        .replace(/"(?:\\.|[^"\\])*"|\bundefined\b/g, (token) =>
+          token === "undefined" ? "null" : token,
+        );
+      const root = JSON.parse(json);
+      const detail = root?.note?.noteDetailMap;
+      if (!detail || typeof detail !== "object") continue;
+      const key = noteId || root.note.firstNoteId;
+      const entry = key
+        ? detail[key]
+        : Object.keys(detail).length === 1
+          ? Object.values(detail)[0]
+          : null;
+      const note = entry?.note;
+      if (
+        note &&
+        (typeof note.title === "string" || typeof note.desc === "string")
+      )
+        return {
+          title: typeof note.title === "string" ? note.title : "",
+          description: typeof note.desc === "string" ? note.desc : "",
+        };
+    } catch {
+      /* Invalid page data is ignored; metadata and pasted text remain available. */
+    }
+  }
+  return null;
+}
+
 export function parseRecipeContent(
   html: string,
   shareText: string,
@@ -105,6 +177,16 @@ export function parseRecipeContent(
       .attr("content") || "";
   let title = clean(meta("og:title") || $("title").text());
   let description = clean(meta("og:description") || meta("description"));
+  const initialNote = readInitialNote(
+    $("script")
+      .toArray()
+      .map((el) => $(el).text()),
+    sourceUrl,
+  );
+  if (initialNote) {
+    title = clean(initialNote.title) || title;
+    description = initialNote.description.trim() || description;
+  }
   let ingredients = "",
     steps = "";
   for (const el of $('script[type="application/ld+json"]').toArray()) {
@@ -148,6 +230,8 @@ export function parseRecipeContent(
   const pasted = shareText
     .replace(/https?:\/\/\S+/g, "")
     .replace(/复制.*(?:打开|查看).*$/s, "")
+    .replace(/[,，]?\s*[A-Za-z0-9]{10,}\s*$/g, "")
+    .replace(/\s*[-–]\s*小红书.*$/s, "")
     .trim();
   const content = [title, description, pasted].filter(Boolean).join("\n");
   const dish = dishNames.find((name) => content.includes(name));
@@ -183,12 +267,17 @@ export async function fetchRecipeDraft(
     throw new DomainError("请粘贴小红书笔记链接，或包含链接的分享文案");
   let url = link,
     html = "";
+  let failureReason: ImportFailure | undefined;
+  const deadline = AbortSignal.timeout(15000);
   try {
     for (let redirect = 0; redirect < 5; redirect++) {
-      if (!isRecipeUrl(url)) throw new Error("Redirect outside supported site");
+      if (!isRecipeUrl(url)) {
+        failureReason = "unsupported-redirect";
+        break;
+      }
       const response = await fetcher(url, {
         redirect: "manual",
-        signal: AbortSignal.timeout(7000),
+        signal: deadline,
         headers: {
           "User-Agent": "LooKingdom/0.2 (personal recipe organizer)",
           Accept: "text/html",
@@ -198,15 +287,26 @@ export async function fetchRecipeDraft(
       });
       if (response.status >= 300 && response.status < 400) {
         const location = response.headers.get("location");
-        if (!location) break;
+        if (!location) {
+          failureReason = "no-content";
+          break;
+        }
         url = new URL(location, url).href;
+        if (redirect === 4) failureReason = "unsupported-redirect";
         continue;
       }
       if (
         !response.ok ||
         !(response.headers.get("content-type") || "").includes("text/html")
-      )
+      ) {
+        failureReason =
+          response.status === 404 || response.status === 410
+            ? "not-found"
+            : [401, 403, 429, 461, 471].includes(response.status)
+              ? "restricted"
+              : "no-content";
         break;
+      }
       if (response.body) {
         const reader = response.body.getReader();
         const decoder = new TextDecoder();
@@ -217,7 +317,11 @@ export async function fetchRecipeDraft(
             if (result.done) break;
             bytes += result.value.byteLength;
             html += decoder.decode(result.value, { stream: true });
-            if (bytes > 2_000_000) break;
+            if (bytes > 2_000_000) {
+              html = "";
+              failureReason = "too-large";
+              break;
+            }
           }
         } finally {
           await reader.cancel();
@@ -226,7 +330,31 @@ export async function fetchRecipeDraft(
       break;
     }
   } catch {
-    /* A restricted note still becomes an editable recipe draft, never a fabricated recipe. */
+    failureReason = deadline.aborted ? "timeout" : "network";
   }
-  return parseRecipeContent(html, input, link);
+  const draft = parseRecipeContent(html, input, isRecipeUrl(url) ? url : link);
+  draft.sourceUrl = link;
+  if (!failureReason && draft.status === "needs-input")
+    failureReason =
+      /登录|安全验证|访问异常|验证码|验证中心|Access Denied/i.test(html)
+        ? "restricted"
+        : "no-content";
+  if (failureReason) {
+    const reasons: Record<ImportFailure, string> = {
+      restricted: "小红书暂未开放这条笔记的网页访问（可能需要登录或验证）。",
+      "not-found": "这条笔记已失效或找不到了。",
+      timeout: "小红书响应超时了。",
+      network: "暂时连接不上小红书。",
+      "unsupported-redirect": "分享链接跳转到了暂不支持的页面。",
+      "too-large": "这条笔记的网页内容太大，暂时无法读取。",
+      "no-content": "网页没有返回可读取的笔记内容。",
+    };
+    draft.failureReason = failureReason;
+    draft.notice =
+      reasons[failureReason] +
+      (draft.status === "recognized"
+        ? "已从你粘贴的分享文案整理菜名和菜系，请核对；未读取到完整做法。"
+        : "试试粘贴 App「分享 → 复制链接」的完整文案，或补上菜名和做法，原链接会保留。");
+  }
+  return draft;
 }

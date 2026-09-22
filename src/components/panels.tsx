@@ -569,7 +569,7 @@ function CardForm() {
   const [description, setDescription] = useState<string>(
     cardTemplates[0].description,
   );
-  const [owner, setOwner] = useState<Role>(otherRole(role));
+  const owner = otherRole(role);
   const [count, setCount] = useState(3);
   const [minutes, setMinutes] = useState(15);
   const [kind, setKind] = useState<UseKind>("timed");
@@ -647,25 +647,11 @@ function CardForm() {
             onChange={(e) => setDescription(e.target.value)}
           />
         </label>
-        <fieldset className="field owner-field">
-          <legend>谁的专属卡片？</legend>
-          <div className="segmented owner-tabs">
-            {(["blue", "red"] as Role[]).map((person) => (
-              <button
-                key={person}
-                type="button"
-                className={
-                  owner === person
-                    ? `active ${person === "red" ? "coral" : "blue"}`
-                    : ""
-                }
-                onClick={() => setOwner(person)}
-              >
-                {roleName(person)}专用
-              </button>
-            ))}
-          </div>
-        </fieldset>
+        <div className="field owner-field">
+          <span>送给谁？</span>
+          <p className="coupon-recipient">♡ {roleName(owner)}专用</p>
+          <small>这份偏爱只送给对方，由对方申请使用、你来接受。</small>
+        </div>
         <label className="field">
           兑现方式
           <select

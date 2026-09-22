@@ -213,3 +213,52 @@ test("production seed has no invented personal memories or issued coupons", () =
   assert.equal(state.events.length, 0);
   assert.equal(state.coupons.length, 0);
 });
+
+test("only the partner can issue a card, including an existing request id", () => {
+  for (const actor of ["blue", "red"] as const) {
+    const seed = makeSeed(false);
+    const owner = actor === "blue" ? "red" : "blue";
+    const requestId = crypto.randomUUID();
+    const coupon = {
+      title: "心愿",
+      description: "",
+      owner,
+      count: 1,
+      minutes: 0,
+      art: 4,
+      color: "lavender",
+      benefit: "相机",
+      expires: "",
+    };
+    const command = commandSchema.parse({
+      type: "coupon.create",
+      coupon,
+      requestId,
+    });
+    const created = applyCommand(seed, command, actor);
+    assert.equal(created.coupons[0].owner, owner);
+    assert.equal(created.coupons[0].useKind, "goods");
+    assert.deepEqual(applyCommand(created, command, actor), created);
+    assert.throws(() => applyCommand(created, command, owner), /只能送给对方/);
+    const self = commandSchema.parse({
+      type: "coupon.create",
+      coupon: { ...coupon, owner: actor },
+      requestId: crypto.randomUUID(),
+    });
+    assert.throws(() => applyCommand(seed, self, actor), /只能送给对方/);
+    assert.equal(seed.coupons.length, 0);
+  }
+});
+test("eating is persisted for the authenticated role without changing older activity ids", () => {
+  const seed = makeSeed(false);
+  const cmd = commandSchema.parse({
+    type: "profile",
+    activity: 6,
+    mood: 0,
+    note: "干饭第一名",
+  });
+  const result = applyCommand(seed, cmd, "red");
+  assert.equal(result.profiles.red.activity, 6);
+  assert.deepEqual(result.profiles.blue, seed.profiles.blue);
+  assert.equal(commandSchema.safeParse({ ...cmd, activity: 7 }).success, false);
+});

@@ -29,6 +29,10 @@ export function Wallet() {
   );
   const selected = Math.min(index, Math.max(0, cards.length - 1));
   const card = cards[selected];
+  const behind = Array.from(
+    { length: Math.min(2, Math.max(0, cards.length - 1)) },
+    (_, offset) => cards[(selected + offset + 1) % cards.length],
+  );
   const active = card ? activeUseFor(state, card.id) : undefined;
   const move = (amount: number) =>
     setIndex((selected + amount + cards.length) % cards.length);
@@ -91,8 +95,23 @@ export function Wallet() {
               touch.current = null;
             }}
           >
-            <div className="ticket-back back-two" />
-            <div className="ticket-back back-one" />
+            {behind.map((next, depth) => (
+              <div
+                key={next.id}
+                data-card-id={next.id}
+                aria-hidden="true"
+                className={`ticket-back color-${next.color} back-${depth === 0 ? "one" : "two"}`}
+              >
+                <b>{next.title}</b>
+                <CardArt role={next.owner} art={next.art} />
+                <small>
+                  {next.remaining} 次
+                  {next.minutes
+                    ? ` · ${next.remaining * next.minutes} 分钟`
+                    : ""}
+                </small>
+              </div>
+            ))}
             <article
               className={`coupon-card color-${card.color} owner-${owner}`}
               key={card.id}

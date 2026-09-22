@@ -42,8 +42,10 @@ export function Loo({
 }) {
   return (
     <Sprite
-      sheet={`${role}-states-alpha`}
-      index={activity}
+      sheet={activity === 6 ? "eating" : `${role}-states-alpha`}
+      index={activity === 6 ? (role === "red" ? 1 : 0) : activity}
+      cols={activity === 6 ? 2 : 3}
+      rows={activity === 6 ? 1 : 2}
       className={className}
     />
   );
@@ -59,9 +61,12 @@ export function CardArt({
 }) {
   return (
     <Sprite
-      sheet="cards"
-      index={art + (role === "red" ? 4 : 0)}
-      cols={4}
+      sheet={art === 4 ? "wish-cards" : "cards"}
+      index={
+        art === 4 ? (role === "red" ? 1 : 0) : art + (role === "red" ? 4 : 0)
+      }
+      cols={art === 4 ? 2 : 4}
+      rows={art === 4 ? 1 : 2}
       className={className}
     />
   );

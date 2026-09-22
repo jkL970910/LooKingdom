@@ -8,8 +8,10 @@ export function TripMap({
   selectedId,
   onSelect,
   onPick,
+  mode = "route",
 }: {
   trips: Trip[];
+  mode?: "overview" | "route";
   selectedId?: string | null;
   onSelect?: (id: string) => void;
   onPick?: (lat: number, lng: number) => void;
@@ -74,21 +76,28 @@ export function TripMap({
       for (const t of rows) {
         const points = t.places.map((p) => [p.lat, p.lng] as L.LatLngTuple);
         const color = t.status === "planned" ? "#e88983" : "#438dc3";
-        if (points.length > 1)
+        if (mode === "route" && points.length > 1)
           L.polyline(points, {
             color,
             weight: 3,
             opacity: 0.65,
             dashArray: t.status === "planned" ? "7 8" : undefined,
           }).addTo(layers.current);
-        t.places.forEach((p, i) => {
+        const markers = mode === "overview" ? t.places.slice(0, 1) : t.places;
+        markers.forEach((p, i) => {
           const label = document.createElement("span");
-          label.textContent = `${t.title} · ${i + 1}. ${p.name}`;
+          label.textContent =
+            mode === "overview"
+              ? `${t.title} · ${t.places.length} 站`
+              : `${t.title} · ${i + 1}. ${p.name}`;
           L.marker([p.lat, p.lng], {
-            title: `${t.title}：${p.name}`,
+            title:
+              mode === "overview"
+                ? `${t.title} · ${t.places.length} 站`
+                : `${t.title}：${p.name}`,
             icon: L.divIcon({
               className: "loo-map-marker",
-              html: `<span style="background:${color}">${i + 1}</span>`,
+              html: `<span style="background:${color}">${mode === "overview" ? "♡" : i + 1}</span>`,
               iconSize: [30, 36],
               iconAnchor: [15, 34],
             }),
@@ -97,7 +106,8 @@ export function TripMap({
             .on("click", () => callbacks.current.onSelect?.(t.id))
             .addTo(layers.current!);
         });
-        if (!selectedId || t.id === selectedId) bounds.push(...points);
+        if (!selectedId || t.id === selectedId)
+          bounds.push(...(mode === "overview" ? points.slice(0, 1) : points));
       }
       if (bounds.length)
         map.current.fitBounds(bounds, {
@@ -109,7 +119,7 @@ export function TripMap({
     return () => {
       disposed = true;
     };
-  }, [data, selectedId, ready]);
+  }, [data, selectedId, ready, mode]);
   return (
     <div className="map-wrap">
       <div ref={node} className="trip-map" aria-label="一起走过的旅行地图" />

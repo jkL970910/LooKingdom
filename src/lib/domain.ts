@@ -33,6 +33,7 @@ export const activities = [
   "健身中",
   "追剧中",
   "昏迷中",
+  "干饭中",
 ] as const;
 export const moods = [
   "开心",
@@ -88,6 +89,15 @@ export const cardTemplates = [
     art: 3,
     benefit: "1g 小金豆",
     color: "gold",
+  },
+  {
+    title: "Loo心愿兑现券",
+    description: "你的小心愿，我来认真兑现",
+    minutes: 0,
+    count: 1,
+    art: 4,
+    benefit: "一份约好的心愿礼物",
+    color: "lavender",
   },
 ] as const;
 export type Profile = {
@@ -319,7 +329,11 @@ export const couponInput = z.object({
   count: z.number().int().min(1).max(999),
   minutes: z.number().int().min(0).max(1440),
   benefit: z.string().trim().max(120),
-  art: z.number().int().min(0).max(3),
+  art: z
+    .number()
+    .int()
+    .min(0)
+    .max(cardTemplates.length - 1),
   color: z.enum(["blue", "coral", "lavender", "gold"]),
   expires: z.union([z.literal(""), dateString]),
 });
@@ -328,7 +342,11 @@ export const commandSchema = z.discriminatedUnion("type", [
   ...lifestyleCommandSchemas,
   z.object({
     type: z.literal("profile"),
-    activity: z.number().int().min(0).max(5),
+    activity: z
+      .number()
+      .int()
+      .min(0)
+      .max(activities.length - 1),
     mood: z.number().int().min(0).max(5),
     note: z.string().trim().max(120),
   }),
@@ -425,6 +443,8 @@ export function applyCommand(
       break;
     }
     case "coupon.create": {
+      if (command.coupon.owner === actor)
+        throw new DomainError("小特权只能送给对方，不能给自己发卡哦", 403);
       if (s.coupons.some((c) => c.id === command.requestId)) return state;
       const kind = useKind(command.coupon);
       if (kind === "timed" && command.coupon.minutes < 1)

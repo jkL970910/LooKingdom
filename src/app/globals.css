@@ -943,15 +943,19 @@ dialog {
   inset: 14px -13px 8px 13px;
   border: 1px solid #f0c1ae;
   border-radius: 15px;
-  background: linear-gradient(120deg, #ffded0, #ffb9b0);
+  background: linear-gradient(130deg, var(--card-light), var(--card-base));
+  border-color: var(--card-border);
+  color: var(--card-ink);
+  overflow: hidden;
+  pointer-events: none;
+  padding: 20px;
   box-shadow: 0 3px 9px #a37b5720;
   z-index: -1;
   transform: rotate(1.5deg);
 }
 .back-two {
   inset: 24px -24px 17px 22px;
-  background: linear-gradient(120deg, #fff0b4, #ffe799);
-  border-color: #f1d991;
+
   transform: rotate(2.4deg);
   z-index: -2;
 }
@@ -2526,4 +2530,39 @@ dialog {
     transition: none !important;
     scroll-behavior: auto !important;
   }
+}
+
+.ticket-back .sprite {
+  display: block;
+  width: 100%;
+  height: 230px;
+}
+.ticket-back b,
+.ticket-back small {
+  display: block;
+}
+.event-mini-art {
+  flex-shrink: 0;
+  object-fit: cover;
+  border-radius: 10px;
+}
+.event-list-date {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  text-align: right;
+  flex-shrink: 0;
+}
+.event-list-date small {
+  color: #bd795c;
+  font-size: 10px;
+}
+.event-small h3 {
+  overflow-wrap: anywhere;
+}
+.coupon-recipient {
+  padding: 12px;
+  border-radius: 14px;
+  background: #fff1e7;
+  font-weight: 700;
 }

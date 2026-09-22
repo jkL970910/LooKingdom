@@ -417,9 +417,17 @@ export function Trips({ focusId }: { focusId: string | null }) {
         </span>
         {active && <button onClick={() => setSelected(null)}>查看全部</button>}
       </div>
-      <TripMap trips={shown} selectedId={selected} onSelect={setSelected} />
+      <TripMap
+        trips={shown}
+        mode="overview"
+        selectedId={selected}
+        onSelect={(id) => {
+          setSelected(id);
+          setPanel({ kind: "trip-detail", id });
+        }}
+      />
       <p className="micro-copy">
-        蓝色是共同足迹，粉色是未来期待。点击地图标记浏览行程。
+        一段旅程，一颗小爱心（以首站定位）。点击标记或下方旅程，展开完整路线。蓝色是足迹，粉色是期待。
       </p>
       {active && (
         <button

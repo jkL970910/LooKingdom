@@ -312,3 +312,56 @@ test("platform home page is not misclassified as a dish", () => {
   assert.equal(draft.title, "");
   assert.equal(draft.note, "");
 });
+
+test("XHS initial state reads the requested note, preserves undefined inside strings and never executes scripts", () => {
+  const html =
+    "<title>小红书</title><script>window.__INITIAL_STATE__=" +
+    JSON.stringify({
+      note: {
+        noteDetailMap: {
+          wrong: { note: { title: "别的推荐菜", desc: "不要导入" } },
+          actual: {
+            note: {
+              title: "麻婆豆腐",
+              desc: "川菜\n豆腐 undefined 品牌\n先炒豆瓣酱",
+            },
+            extra: "REPLACE",
+          },
+        },
+      },
+    }).replace('"REPLACE"', "undefined") +
+    ';throw new Error("must not execute")</script>';
+  const result = parseRecipeContent(
+    html,
+    "",
+    "https://www.xiaohongshu.com/explore/actual",
+  );
+  assert.equal(result.title, "麻婆豆腐");
+  assert.equal(result.cuisine, 1);
+  assert.match(result.note, /undefined 品牌/);
+  assert.match(result.note, /\n先炒豆瓣酱/);
+  assert.equal(result.steps, "");
+});
+test("import failures tell restricted notes apart from missing notes and network failures", async () => {
+  for (const [status, reason] of [
+    [403, "restricted"],
+    [404, "not-found"],
+  ] as const) {
+    const result = await fetchRecipeDraft(
+      "https://xhslink.com/o/abc",
+      (async () => new Response("", { status })) as typeof fetch,
+    );
+    assert.equal(result.failureReason, reason);
+    assert.equal(result.status, "needs-input");
+    assert.equal(result.sourceUrl, "https://xhslink.com/o/abc");
+  }
+  const result = await fetchRecipeDraft(
+    "番茄炒蛋 https://xhslink.com/o/abc",
+    (async () => {
+      throw Error("offline");
+    }) as typeof fetch,
+  );
+  assert.equal(result.failureReason, "network");
+  assert.equal(result.title, "番茄炒蛋");
+  assert.match(result.notice, /分享文案/);
+});

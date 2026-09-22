@@ -142,7 +142,7 @@ function RecipeForm({ initial: supplied }: { initial?: Recipe }) {
               value={paste}
               onChange={(e) => setPaste(e.target.value)}
               maxLength={12000}
-              placeholder="把小红书的分享链接粘在这里，也可以连文案一起粘贴…"
+              placeholder="推荐粘贴 App「分享 → 复制链接」的完整文案，保留菜名和链接…"
             />
           </label>
           <button
