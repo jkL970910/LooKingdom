@@ -14,7 +14,6 @@ import {
   moods,
   moodEmoji,
   daysUntil,
-  nextOccurrence,
   otherRole,
   roleName,
   today,
@@ -23,6 +22,7 @@ import {
 } from "@/lib/domain";
 import { useKingdom } from "./context";
 import { Loo, Sprite } from "./art";
+import { prioritizedPlans } from "@/lib/event-priority";
 import { HomeClock } from "./time-zone";
 import { CouponActivity } from "./coupon-flow";
 
@@ -59,7 +59,9 @@ export function Countdown({
         <p>
           {compact
             ? days >= 0
-              ? "离见面，又近了一点点 ♡"
+              ? event.theme === 3
+                ? "离一起回国，又近了一点点 ♡"
+                : "离共同的期待，又近了一点点 ♡"
               : "一起收藏的温暖回忆"
             : event.note.split("\n")[0] || "好期待，一起到来的那一天"}
         </p>
@@ -95,12 +97,11 @@ export function Home() {
     useKingdom();
   const partner = otherRole(role);
   const current = today(state.timeZone);
-  const future = state.events
-    .filter((e) => e.countdown && daysUntil(e, current) >= 0)
-    .sort((a, b) =>
-      nextOccurrence(a, current).localeCompare(nextOccurrence(b, current)),
-    );
-  const pinned = future.find((e) => e.id === state.pinnedEventId) || future[0];
+  const { pinned } = prioritizedPlans(
+    state.events,
+    state.pinnedEventId,
+    current,
+  );
   const defaultScene =
     state.profiles.blue.activity === 0 &&
     state.profiles.red.activity === 4 &&

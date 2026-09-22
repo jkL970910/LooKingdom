@@ -123,7 +123,7 @@ test("request waits for partner without deducting and custom card can be created
   ).toBeVisible();
   await page.getByRole("button", { name: "兑换记录", exact: true }).click();
   await expect(page.locator(".use-history-list")).toContainText("等待接受");
-  await page.getByRole("button", { name: "自定义卡片" }).click();
+  await page.getByRole("button", { name: "给你发张新卡" }).click();
   await page.getByLabel("卡片名称").fill("一起散步券");
   await page.getByLabel("总次数").fill("4");
   await page.getByLabel("每次分钟数").fill("20");

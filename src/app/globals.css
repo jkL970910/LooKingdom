@@ -2566,3 +2566,12 @@ dialog {
   background: #fff1e7;
   font-weight: 700;
 }
+
+.pinned-plan-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 10px;
+  color: #c17b53;
+  margin-left: 4px;
+}

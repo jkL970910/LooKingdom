@@ -258,7 +258,7 @@ export function Wallet() {
         className="button secondary create-coupon"
         onClick={() => setPanel({ kind: "create-card" })}
       >
-        <Plus size={20} /> 自定义卡片
+        <Plus size={20} /> 给你发张新卡
       </button>
       <p className="wallet-caption">
         <Clock3 size={13} /> 先申请，再一起兑现；完成后才扣减权益

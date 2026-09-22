@@ -12,7 +12,7 @@ test("gifts go only to the partner and actual held cards determine every stack l
     page.getByRole("button", { name: "小窝", exact: true }),
   ).toBeVisible();
   await page.getByRole("button", { name: "卡包", exact: true }).click();
-  await page.getByRole("button", { name: "自定义卡片" }).click();
+  await page.getByRole("button", { name: "给你发张新卡" }).click();
   const form = page.getByRole("dialog");
   await expect(form.locator(".coupon-recipient")).toHaveText("♡ 红Loo专用");
   await expect(

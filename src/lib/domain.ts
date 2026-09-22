@@ -421,7 +421,6 @@ export function applyCommand(
       syncEventToTrip(s, event, now);
       if (event.theme === 2 && travelPlaces)
         s.trips.find((t) => t.eventId === event.id)!.places = travelPlaces;
-      if (event.countdown && !s.pinnedEventId) s.pinnedEventId = event.id;
       if (!event.countdown && s.pinnedEventId === event.id)
         s.pinnedEventId = null;
       break;

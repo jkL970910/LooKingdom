@@ -4,21 +4,27 @@ import { ChevronRight, Plus, CalendarHeart, Pin } from "lucide-react";
 import { daysUntil, moodEmoji, nextOccurrence, today } from "@/lib/domain";
 import { useKingdom } from "./context";
 import { Sprite } from "./art";
+import { prioritizedPlans } from "@/lib/event-priority";
 export function Journal() {
   const { state, setPanel } = useKingdom();
   const [futureTab, setFutureTab] = useState(false);
   const current = today(state.timeZone);
-  const upcoming = state.events
-    .filter((e) => daysUntil(e, current) > 0 || (e.annual && e.countdown))
-    .sort((a, b) =>
-      nextOccurrence(a, current).localeCompare(nextOccurrence(b, current)),
-    );
+  const { upcoming, pinned } = prioritizedPlans(
+    state.events,
+    state.pinnedEventId,
+    current,
+  );
   const history = state.events
     .filter((e) => e.date <= current)
     .sort(
       (a, b) =>
         b.date.localeCompare(a.date) || b.createdAt.localeCompare(a.createdAt),
     );
+  const shown = futureTab
+    ? upcoming
+    : pinned
+      ? [pinned, ...history.filter((e) => e.id !== pinned.id)]
+      : history;
   return (
     <>
       <div className="journal-heading">
@@ -42,7 +48,7 @@ export function Journal() {
         </button>
       </div>
       <div className="event-list">
-        {(futureTab ? upcoming : history).map((event) => (
+        {shown.map((event) => (
           <button
             className="event-card event-small"
             key={event.id}
@@ -63,10 +69,13 @@ export function Journal() {
               />
             )}
             <div>
-              <h3>
-                {event.title}{" "}
-                {state.pinnedEventId === event.id && <Pin size={12} />}
-              </h3>
+              <h3>{event.title}</h3>
+              {pinned?.id === event.id && (
+                <span className="pinned-plan-label">
+                  <Pin size={12} />
+                  {state.pinnedEventId === event.id ? "已置顶" : "最近计划"}
+                </span>
+              )}
               <p>
                 {moodEmoji[event.mood]}{" "}
                 {event.note.split("\n")[0] || "和你在一起的日子"}
@@ -74,18 +83,24 @@ export function Journal() {
             </div>
             <span className="event-list-date">
               <time>
-                {(futureTab
+                {(futureTab || pinned?.id === event.id
                   ? nextOccurrence(event, current)
                   : event.date
                 ).replaceAll("-", ".")}
               </time>
-              {futureTab && <small>还有 {daysUntil(event, current)} 天</small>}
+              {(futureTab || pinned?.id === event.id) && (
+                <small>
+                  {daysUntil(event, current) === 0
+                    ? "就是今天"
+                    : `还有 ${daysUntil(event, current)} 天`}
+                </small>
+              )}
             </span>
             <ChevronRight size={16} />
           </button>
         ))}
       </div>
-      {(futureTab ? upcoming : history).length === 0 && (
+      {shown.length === 0 && (
         <div className="empty-state">
           <CalendarHeart size={34} />
           <h3>{futureTab ? "把期待写下来吧" : "故事，从今天开始"}</h3>
