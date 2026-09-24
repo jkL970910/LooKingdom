@@ -35,6 +35,7 @@ export const activities = [
   "昏迷中",
   "干饭中",
   "躺尸中",
+  "加班中",
 ] as const;
 export const moods = [
   "开心",

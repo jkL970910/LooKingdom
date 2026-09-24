@@ -40,12 +40,13 @@ export function Loo({
   activity: number;
   className?: string;
 }) {
+  const extraSheet = ({ 6: "eating", 7: "lounging", 8: "overtime" } as Record<number, string>)[activity];
   return (
     <Sprite
-      sheet={activity === 7 ? "lounging" : activity === 6 ? "eating" : `${role}-states-alpha`}
-      index={activity === 6 || activity === 7 ? (role === "red" ? 1 : 0) : activity}
-      cols={activity === 6 || activity === 7 ? 2 : 3}
-      rows={activity === 6 || activity === 7 ? 1 : 2}
+      sheet={extraSheet ?? `${role}-states-alpha`}
+      index={extraSheet ? (role === "red" ? 1 : 0) : activity}
+      cols={extraSheet ? 2 : 3}
+      rows={extraSheet ? 1 : 2}
       className={className}
     />
   );
