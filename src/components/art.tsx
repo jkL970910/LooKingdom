@@ -42,10 +42,10 @@ export function Loo({
 }) {
   return (
     <Sprite
-      sheet={activity === 6 ? "eating" : `${role}-states-alpha`}
-      index={activity === 6 ? (role === "red" ? 1 : 0) : activity}
-      cols={activity === 6 ? 2 : 3}
-      rows={activity === 6 ? 1 : 2}
+      sheet={activity === 7 ? "lounging" : activity === 6 ? "eating" : `${role}-states-alpha`}
+      index={activity === 6 || activity === 7 ? (role === "red" ? 1 : 0) : activity}
+      cols={activity === 6 || activity === 7 ? 2 : 3}
+      rows={activity === 6 || activity === 7 ? 1 : 2}
       className={className}
     />
   );

@@ -73,7 +73,7 @@ test("gifts go only to the partner and actual held cards determine every stack l
   });
 });
 
-test("every diary row is compact and eating artwork survives reload", async ({
+test("every diary row is compact and eating and lounging artwork survive reload", async ({
   page,
 }) => {
   await page.goto("/");
@@ -81,17 +81,17 @@ test("every diary row is compact and eating artwork survives reload", async ({
   await expect(
     page.getByRole("button", { name: "小窝", exact: true }),
   ).toBeVisible();
-  await page.getByRole("button", { name: "更新我的状态" }).click();
-  await page.getByRole("button", { name: "干饭中", exact: true }).click();
-  await page.getByRole("button", { name: "更新状态", exact: true }).click();
-  await expect(page.getByRole("dialog")).toHaveCount(0);
-  await page.reload();
-  await expect(
-    page.getByRole("button", { name: "查看蓝Loo状态" }),
-  ).toContainText("干饭中");
-  await expect(
-    page.getByRole("button", { name: "查看蓝Loo状态" }).locator(".sprite"),
-  ).toHaveCSS("background-image", /eating/);
+  for (const [activity, sheet] of [["干饭中", "eating"], ["躺尸中", "lounging"]]) {
+    await page.getByRole("button", { name: "更新我的状态" }).click();
+    await page.getByRole("button", { name: activity, exact: true }).click();
+    await page.getByRole("button", { name: "更新状态", exact: true }).click();
+    await expect(page.getByRole("dialog")).toHaveCount(0);
+    await page.reload();
+    const profile = page.getByRole("button", { name: "查看蓝Loo状态" });
+    await expect(profile).toContainText(activity);
+    await expect(profile.locator(".sprite")).toHaveCSS("background-image", new RegExp(sheet));
+  }
+  await page.screenshot({ path: "design/qa/lounging.png", animations: "disabled" });
   await page.getByRole("button", { name: "大事件", exact: true }).click();
   for (const name of ["我们的故事", "未来计划"]) {
     await page.getByRole("button", { name, exact: true }).click();
