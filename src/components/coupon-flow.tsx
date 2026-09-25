@@ -6,6 +6,7 @@ import { Sheet } from "./sheet";
 import { CardArt } from "./art";
 import { PhotoPicker } from "./lifestyle-panels";
 import { useClock } from "./time-zone";
+import { couponCategory } from "@/lib/coupon-groups";
 import { today, roleName, type Coupon } from "@/lib/domain";
 import {
   activeUseFor,
@@ -71,7 +72,9 @@ export function CouponActivity({ compact = false }: { compact?: boolean }) {
 export function RequestCoupon({ initial }: { initial: Coupon }) {
   const { state, role, setPanel, mutate, busy, toast } = useKingdom();
   const [requestId] = useState(() => crypto.randomUUID());
-  const card = state.coupons.find((c) => c.id === initial.id);
+  const [selectedId, setSelectedId] = useState(initial.id);
+  const variants = state.coupons.filter(c => couponCategory(c) === couponCategory(initial) && c.remaining > 0 && (!c.expires || c.expires >= today(state.timeZone)));
+  const card = variants.find(c => c.id === selectedId) ?? variants[0];
   if (!card) return null;
   const active = activeUseFor(state, card.id),
     kind = useKind(card),
@@ -102,6 +105,16 @@ export function RequestCoupon({ initial }: { initial: Coupon }) {
           ；申请和等待期间不扣减。
         </small>
       </div>
+      {variants.length > 0 && (
+        <label className="field">
+          选择要使用的卡片
+          <select aria-label="选择要使用的卡片" value={card.id} disabled={!!active || busy} onChange={e => setSelectedId(e.target.value)}>
+            {variants.map(c => <option key={c.id} value={c.id}>
+              {useKind(c) === "timed" ? c.minutes + " 分钟" : c.title} · 剩余 {c.remaining} 张{c.expires ? " · " + c.expires + " 到期" : ""}
+            </option>)}
+          </select>
+        </label>
+      )}
       {active ? (
         <button
           className="button primary coral"

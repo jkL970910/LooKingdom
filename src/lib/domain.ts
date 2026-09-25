@@ -124,6 +124,8 @@ export type DiaryEvent = {
   updatedAt: string;
 };
 export type Coupon = {
+  // All issuance IDs survive merging for retry protection and old-client references.
+  issueIds?: string[];
   useKind?: UseKind;
   id: string;
   title: string;
@@ -447,7 +449,7 @@ export function applyCommand(
     case "coupon.create": {
       if (command.coupon.owner === actor)
         throw new DomainError("小特权只能送给对方，不能给自己发卡哦", 403);
-      if (s.coupons.some((c) => c.id === command.requestId)) return state;
+      if (s.coupons.some((c) => c.id === command.requestId || c.issueIds?.includes(command.requestId))) return state;
       const kind = useKind(command.coupon);
       if (kind === "timed" && command.coupon.minutes < 1)
         throw new DomainError("计时卡每次至少 1 分钟");
@@ -507,5 +509,5 @@ export function applyCommand(
     }
   }
   s.version++;
-  return s;
+  return normalizeState(s);
 }

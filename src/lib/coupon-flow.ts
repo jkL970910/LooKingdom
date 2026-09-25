@@ -214,15 +214,17 @@ export function applyCouponFlow(
   const s = structuredClone(settled);
   s.couponUses ??= [];
   if (command.type === "coupon.request") {
+    const canonical = s.coupons.find(c => c.id === command.id || c.issueIds?.includes(command.id));
+    const cardId = canonical?.id ?? command.id;
     const previous = s.couponUses.find((u) => u.id === command.requestId);
     if (previous) {
-      if (previous.owner !== actor || previous.couponId !== command.id)
+      if (previous.owner !== actor || previous.couponId !== cardId)
         throw new DomainError("申请请求不匹配", 409);
       return settled;
     }
     if (s.redemptions.some((r) => r.requestId === command.requestId))
       throw new DomainError("这个请求编号已使用", 409);
-    const card = s.coupons.find((c) => c.id === command.id);
+    const card = s.coupons.find((c) => c.id === cardId);
     if (!card) throw new DomainError("这张卡不存在", 404);
     if (card.owner !== actor)
       throw new DomainError("这是对方的专属卡片哦", 403);

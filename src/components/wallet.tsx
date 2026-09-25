@@ -14,6 +14,7 @@ import { type Coupon, type Role, roleName, today } from "@/lib/domain";
 import { useKingdom } from "./context";
 import { CardArt } from "./art";
 import { CouponActivity, CouponUseHistory } from "./coupon-flow";
+import { groupCoupons } from "@/lib/coupon-groups";
 import { activeUseFor } from "@/lib/coupon-flow";
 export function Wallet() {
   const { state, role, setPanel } = useKingdom();
@@ -24,16 +25,16 @@ export function Wallet() {
   const current = today(state.timeZone);
   const usable = (c: Coupon) =>
     c.remaining > 0 && (!c.expires || c.expires >= current);
-  const cards = state.coupons.filter(
+  const cards = groupCoupons(state.coupons.filter(
     (c) => c.owner === owner && (tab === "available" ? usable(c) : !usable(c)),
-  );
+  ));
   const selected = Math.min(index, Math.max(0, cards.length - 1));
   const card = cards[selected];
   const behind = Array.from(
     { length: Math.min(2, Math.max(0, cards.length - 1)) },
     (_, offset) => cards[(selected + offset + 1) % cards.length],
   );
-  const active = card ? activeUseFor(state, card.id) : undefined;
+  const active = card?.variants.map(c => activeUseFor(state, c.id)).find(Boolean);
   const move = (amount: number) =>
     setIndex((selected + amount + cards.length) % cards.length);
   const history = state.redemptions.filter((r) => r.owner === owner);
@@ -107,7 +108,7 @@ export function Wallet() {
                 <small>
                   {next.remaining} 次
                   {next.minutes
-                    ? ` · ${next.remaining * next.minutes} 分钟`
+                    ? ` · ${next.totalMinutes} 分钟`
                     : ""}
                 </small>
               </div>
@@ -134,13 +135,13 @@ export function Wallet() {
               <div className="coupon-bottom">
                 <div className="coupon-stats">
                   <span>
-                    剩余 <strong>{card.remaining}</strong> 次
+                    剩余 <strong>{card.remaining}</strong> 张
                   </span>
                   <div>
                     {card.minutes > 0 ? (
                       <>
-                        <b>共 {card.remaining * card.minutes} 分钟</b>
-                        <small>每次 {card.minutes} 分钟</small>
+                        <b>共 {card.totalMinutes} 分钟</b>
+                        <small>{card.variants.map(c => `${c.minutes} 分钟 × ${c.remaining} 张`).join(" · ")}</small>
                       </>
                     ) : (
                       <>
@@ -169,7 +170,7 @@ export function Wallet() {
                     {active
                       ? "查看进行中的申请"
                       : owner === role
-                        ? `使用一次${card.minutes > 0 ? ` · ${card.minutes} 分钟` : ""}`
+                        ? (card.minutes > 0 ? "选择卡片并使用" : "使用一次")
                         : `等${roleName(owner)}来使用`}
                   </button>
                 ) : (
@@ -234,7 +235,7 @@ export function Wallet() {
                     <b>{c.title}</b>
                     <small>
                       {c.remaining} 次
-                      {c.minutes ? ` · ${c.remaining * c.minutes} 分钟` : ""}
+                      {c.minutes ? ` · ${c.totalMinutes} 分钟` : ""}
                     </small>
                   </span>
                 </button>

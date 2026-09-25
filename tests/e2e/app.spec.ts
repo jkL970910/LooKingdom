@@ -106,7 +106,7 @@ test("request waits for partner without deducting and custom card can be created
   await page.getByRole("button", { name: "进入小窝" }).click();
   await page.getByRole("button", { name: "卡包", exact: true }).click();
   await page
-    .getByRole("button", { name: "使用一次 · 15 分钟", exact: true })
+    .getByRole("button", { name: "选择卡片并使用", exact: true })
     .click();
   await expect(page.getByRole("dialog")).toContainText("45 分钟");
   await expect(page.getByRole("dialog")).toContainText("对方接受");

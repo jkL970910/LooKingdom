@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { mergeCoupons } from "./coupon-merge";
 import type { DiaryEvent, KingdomState, Role } from "./domain";
 import { DomainError } from "./errors";
 
@@ -214,7 +215,7 @@ export function normalizeState(state: KingdomState): KingdomState {
         normalized.trips.push(tripFromEvent(event, dateInZone(state.timeZone)));
   }
   normalized.schemaVersion = 2;
-  return normalized;
+  return mergeCoupons(normalized);
 }
 function dateInZone(zone: string, now = new Date()) {
   return new Intl.DateTimeFormat("en-CA", {
