@@ -90,7 +90,7 @@ test("every diary row is compact and extra activities artwork survive reload", a
     const profile = page.getByRole("button", { name: "查看蓝Loo状态" });
     await expect(profile).toContainText(activity);
     await expect(profile.locator(".sprite")).toHaveCSS("background-image", new RegExp(sheet));
-    if (["commuting", "gaming"].includes(sheet)) await page.screenshot({ path: `design/qa/${sheet}.png`, animations: "disabled" });
+    if (["commuting", "gaming", "lounging", "slacking", "overtime"].includes(sheet)) await page.screenshot({ path: `design/qa/${sheet}.png`, animations: "disabled" });
   }
   await page.screenshot({ path: "design/qa/slacking.png", animations: "disabled" });
   await page.getByRole("button", { name: "大事件", exact: true }).click();
