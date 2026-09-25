@@ -1,7 +1,7 @@
 import type { Coupon } from "./domain";
 import { useKind } from "./coupon-flow";
 export function couponCategory(card: Coupon) {
-  return JSON.stringify([card.owner, card.title.trim(), useKind(card), useKind(card) === "timed" ? "" : card.benefit.trim()]);
+  return JSON.stringify([card.owner, card.title.trim(), useKind(card)]);
 }
 export type CouponGroup = Coupon & { variants: Coupon[]; totalMinutes: number };
 export function groupCoupons(cards: Coupon[]): CouponGroup[] {

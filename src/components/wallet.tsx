@@ -145,9 +145,9 @@ export function Wallet() {
                       </>
                     ) : (
                       <>
-                        <b>{card.benefit || "一份专属偏爱"}</b>
+                        <b>{card.variants.length > 1 ? `${card.variants.length} 种可选规格` : card.benefit || "一份专属偏爱"}</b>
                         <small>
-                          {card.expires
+                          {card.variants.length > 1 ? "使用时选择具体权益与有效期" : card.expires
                             ? `${card.expires} 前有效`
                             : "偏爱不设期限"}
                         </small>
@@ -170,7 +170,7 @@ export function Wallet() {
                     {active
                       ? "查看进行中的申请"
                       : owner === role
-                        ? (card.minutes > 0 ? "选择卡片并使用" : "使用一次")
+                        ? (card.minutes > 0 || card.variants.length > 1 ? "选择卡片并使用" : "使用一次")
                         : `等${roleName(owner)}来使用`}
                   </button>
                 ) : (

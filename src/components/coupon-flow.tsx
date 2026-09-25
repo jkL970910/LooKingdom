@@ -110,7 +110,7 @@ export function RequestCoupon({ initial }: { initial: Coupon }) {
           选择要使用的卡片
           <select aria-label="选择要使用的卡片" value={card.id} disabled={!!active || busy} onChange={e => setSelectedId(e.target.value)}>
             {variants.map(c => <option key={c.id} value={c.id}>
-              {useKind(c) === "timed" ? c.minutes + " 分钟" : c.title} · 剩余 {c.remaining} 张{c.expires ? " · " + c.expires + " 到期" : ""}
+              {useKind(c) === "timed" ? c.minutes + " 分钟" : (c.benefit || c.title)} · 剩余 {c.remaining} 张{c.expires ? " · " + c.expires + " 到期" : ""}
             </option>)}
           </select>
         </label>

@@ -83,3 +83,21 @@ test("mixed durations form one 4-card 75-minute category, while redemption spend
  assert.equal(groups[0].remaining,3);assert.equal(groups[0].totalMinutes,45);
  assert.equal(s.redemptions[0].minutes,30);
 });
+
+test("all non-timed categories aggregate distinct benefits but preserve their inventories", async () => {
+ const {groupCoupons} = await import("../src/lib/coupon-groups");
+ for(const [title,kind,art] of [["免喷券","instant",1],["Loo猫领养券","goods",2],["Loo金兑换券","goods",3],["Loo心愿兑现券","goods",4],["自定义约定","instant",1]] as const){
+ let s=fixture();s.coupons=[];
+ const template={...fixture().coupons[0],title,minutes:0,useKind:kind,art};
+ s=applyCommand(s,gift(template,{benefit:"规格一",count:3}),"red",now);
+ s=applyCommand(s,gift(template,{benefit:"规格二",count:1}),"red",now);
+ s=applyCommand(s,gift(template,{benefit:"规格一",count:1}),"red",now);
+ const groups=groupCoupons(s.coupons);
+ assert.equal(groups.length,1);assert.equal(groups[0].remaining,5);assert.equal(groups[0].totalMinutes,0);
+ assert.equal(groups[0].variants.length,2);
+ assert.equal(groups[0].variants.find(c=>c.benefit==="规格一")!.remaining,4);
+ const chosen=s.coupons.find(c=>c.benefit==="规格二")!;
+ s=applyCommand(s,{type:"coupon.request",id:chosen.id,requestId:crypto.randomUUID()},"blue",now);
+ assert.equal(s.couponUses[0].benefit,"规格二");assert.equal(s.couponUses[0].kind,kind);
+ }
+});
