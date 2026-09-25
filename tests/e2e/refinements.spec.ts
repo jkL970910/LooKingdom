@@ -81,7 +81,7 @@ test("every diary row is compact and extra activities artwork survive reload", a
   await expect(
     page.getByRole("button", { name: "小窝", exact: true }),
   ).toBeVisible();
-  for (const [activity, sheet] of [["干饭中", "eating"], ["躺尸中", "lounging"], ["加班中", "overtime"], ["摸鱼中", "slacking"]]) {
+  for (const [activity, sheet] of [["干饭中", "eating"], ["躺尸中", "lounging"], ["加班中", "overtime"], ["摸鱼中", "slacking"], ["通勤中", "commuting"], ["战斗中", "gaming"]]) {
     await page.getByRole("button", { name: "更新我的状态" }).click();
     await page.getByRole("button", { name: activity, exact: true }).click();
     await page.getByRole("button", { name: "更新状态", exact: true }).click();
@@ -90,6 +90,7 @@ test("every diary row is compact and extra activities artwork survive reload", a
     const profile = page.getByRole("button", { name: "查看蓝Loo状态" });
     await expect(profile).toContainText(activity);
     await expect(profile.locator(".sprite")).toHaveCSS("background-image", new RegExp(sheet));
+    if (["commuting", "gaming"].includes(sheet)) await page.screenshot({ path: `design/qa/${sheet}.png`, animations: "disabled" });
   }
   await page.screenshot({ path: "design/qa/slacking.png", animations: "disabled" });
   await page.getByRole("button", { name: "大事件", exact: true }).click();

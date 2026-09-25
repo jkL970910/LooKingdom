@@ -270,5 +270,11 @@ test("extra activities are persisted for the authenticated role without changing
     const slacking = commandSchema.parse({ ...cmd, activity: 9 });
     assert.equal(applyCommand(seed, slacking, role).profiles[role].activity, 9);
   }
-  assert.equal(commandSchema.safeParse({ ...cmd, activity: 10 }).success, false);
+  for (const role of ["blue", "red"] as const) {
+    for (const activity of [10, 11]) {
+      const next = commandSchema.parse({ ...cmd, activity });
+      assert.equal(applyCommand(seed, next, role).profiles[role].activity, activity);
+    }
+  }
+  assert.equal(commandSchema.safeParse({ ...cmd, activity: 12 }).success, false);
 });
