@@ -249,7 +249,7 @@ test("only the partner can issue a card, including an existing request id", () =
     assert.equal(seed.coupons.length, 0);
   }
 });
-test("eating, lounging and overtime are persisted for the authenticated role without changing older activity ids", () => {
+test("extra activities are persisted for the authenticated role without changing older activity ids", () => {
   const seed = makeSeed(false);
   const cmd = commandSchema.parse({
     type: "profile",
@@ -266,5 +266,9 @@ test("eating, lounging and overtime are persisted for the authenticated role wit
     const overtime = commandSchema.parse({ ...cmd, activity: 8 });
     assert.equal(applyCommand(seed, overtime, role).profiles[role].activity, 8);
   }
-  assert.equal(commandSchema.safeParse({ ...cmd, activity: 9 }).success, false);
+  for (const role of ["blue", "red"] as const) {
+    const slacking = commandSchema.parse({ ...cmd, activity: 9 });
+    assert.equal(applyCommand(seed, slacking, role).profiles[role].activity, 9);
+  }
+  assert.equal(commandSchema.safeParse({ ...cmd, activity: 10 }).success, false);
 });

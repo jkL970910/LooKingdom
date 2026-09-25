@@ -40,7 +40,7 @@ export function Loo({
   activity: number;
   className?: string;
 }) {
-  const extraSheet = ({ 6: "eating", 7: "lounging", 8: "overtime" } as Record<number, string>)[activity];
+  const extraSheet = ({ 6: "eating", 7: "lounging", 8: "overtime", 9: "slacking" } as Record<number, string>)[activity];
   return (
     <Sprite
       sheet={extraSheet ?? `${role}-states-alpha`}
