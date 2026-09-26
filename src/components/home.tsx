@@ -23,7 +23,8 @@ import {
 import { useKingdom } from "./context";
 import { Loo, Sprite } from "./art";
 import { prioritizedPlans } from "@/lib/event-priority";
-import { HomeClock } from "./time-zone";
+import { activeHeadMassage } from "@/lib/home-activity";
+import { HomeClock, useClock } from "./time-zone";
 import { CouponActivity } from "./coupon-flow";
 
 export function Countdown({
@@ -95,6 +96,8 @@ function updateLabel(time: string) {
 export function Home() {
   const { state, role, setPanel, mutate, busy, toast, reaction, reactTo } =
     useKingdom();
+  const now = useClock();
+  const massage = activeHeadMassage(state.couponUses || [], +now);
   const partner = otherRole(role);
   const current = today(state.timeZone);
   const { pinned } = prioritizedPlans(
@@ -102,7 +105,7 @@ export function Home() {
     state.pinnedEventId,
     current,
   );
-  const defaultScene =
+  const defaultScene = !massage &&
     state.profiles.blue.activity === 0 &&
     state.profiles.red.activity === 4 &&
     state.profiles.blue.mood === 1 &&
@@ -154,14 +157,14 @@ export function Home() {
             <span className={`speech-bubble ${person}`}>
               <b>
                 {roleName(person)} ·{" "}
-                {activities[state.profiles[person].activity]}
+                {massage ? (massage.owner === person ? "享受揉头中" : "认真揉头中") : activities[state.profiles[person].activity]}
               </b>
               <span>
                 {moodEmoji[state.profiles[person].mood]}{" "}
                 {moods[state.profiles[person].mood]}
               </span>
             </span>
-            {!defaultScene && (
+            {!defaultScene && !massage && (
               <Loo
                 key={`${person}-${state.profiles[person].activity}`}
                 role={person}
@@ -171,6 +174,10 @@ export function Home() {
             )}
           </button>
         ))}
+        {massage && (
+          <Sprite sheet="head-massage" index={massage.owner === "red" ? 0 : 1} cols={2} rows={1}
+            className="scene-head-massage" label={roleName(massage.recipient) + "正在给" + roleName(massage.owner) + "揉头"} />
+        )}
         {reaction && (
           <div
             key={reaction.id}

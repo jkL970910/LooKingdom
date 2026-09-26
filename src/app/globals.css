@@ -2584,3 +2584,14 @@ dialog {
 .push-settings .button {
   margin-top: 12px;
 }
+
+.scene-head-massage {
+  position: absolute;
+  width: 78%;
+  left: 11%;
+  bottom: 1%;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.home-scene:has(.scene-head-massage) .scene-person { z-index: 2; }

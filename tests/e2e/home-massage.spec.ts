@@ -1,0 +1,25 @@
+import {test,expect} from "@playwright/test";
+test.use({extraHTTPHeaders:{"x-real-ip":"198.51.100.27"}});
+test("home switches during massage in either direction and restores profiles at deadline or cancellation",async({page})=>{
+ await page.goto("/");await page.getByRole("button",{name:"进入小窝"}).click();
+ await expect(page.getByRole("button",{name:"小窝",exact:true})).toBeVisible();
+ const state=await(await page.request.get("/api/state")).json();delete state.serverNow;
+ const profiles=structuredClone(state.profiles);
+ await page.clock.install();const now=await page.evaluate(()=>Date.now());
+ const use={id:"test-massage",couponId:"demo-red-0",title:"揉头卡",owner:"red",recipient:"blue",kind:"timed",minutes:15,art:0,benefit:"",status:"pending",createdAt:new Date(now).toISOString(),updatedAt:new Date(now).toISOString(),startedAt:new Date(now).toISOString(),endsAt:new Date(now+60000).toISOString(),completedAt:null,reason:"",product:null,confirmedBy:null};
+ state.couponUses=[use];
+ await page.route("**/api/state",route=>route.request().method()==="GET"?route.fulfill({json:state}):route.continue());
+ await page.reload();await expect(page.locator(".scene-head-massage")).toHaveCount(0);
+ use.status="in_progress";await page.reload();
+ await expect(page.getByRole("img",{name:"蓝Loo正在给红Loo揉头"})).toBeVisible();
+ await expect(page.locator(".scene-head-massage")).toHaveCSS("background-position","0% 0%");
+ await page.screenshot({path:"design/qa/home-massage.png",animations:"disabled"});
+ await page.clock.fastForward(61000);
+ await expect(page.locator(".scene-head-massage")).toHaveCount(0);
+ await expect(page.getByRole("button",{name:"查看蓝Loo状态"})).toContainText("工作中");
+ use.owner="blue";use.recipient="red";use.endsAt=new Date(now+180000).toISOString();await page.reload();
+ await expect(page.getByRole("img",{name:"红Loo正在给蓝Loo揉头"})).toBeVisible();
+ await expect(page.locator(".scene-head-massage")).toHaveCSS("background-position","100% 0%");
+ use.status="cancelled";await page.reload();await expect(page.locator(".scene-head-massage")).toHaveCount(0);
+ expect(state.profiles).toEqual(profiles);
+});
